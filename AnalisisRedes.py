@@ -1,6 +1,8 @@
 import subprocess as sub
 import os
 from time import sleep
+from win10toast import ToastNotifier
+
 def encontrar_ip():
 
     salida = sub.run("ipconfig", shell=False, capture_output=True, text=True)
@@ -84,17 +86,18 @@ def comprobacion():
 
     # Mostrar los resultados
     if ip_añadidas:
-        print("Se han añadido las siguientes direcciones IP:")
         for ip in ip_añadidas:
-            print(ip)
+            mensaje1 = f"Se ha conectado la siguiente direcciones IP: {ip}"
+            noti.show_toast("Warning", mensaje1, duration=5, threaded=True)
 
     if ip_eliminadas:
-        print("Se han eliminado las siguientes direcciones IP:")
         for ip in ip_eliminadas:
-            print(ip)
+            mensaje2 = f"Se ha desconectado la siguiente direcciones IP: {ip}"
+            noti.show_toast("Warning", mensaje2, duration=5, threaded=True)
     
 if __name__ == "__main__":
-    print("Se ha iniciado el escaneo de red.\nSe le avisará si se encuentra algo.")
+    noti = ToastNotifier()
+    noti.show_toast("El programa esta en ejecución", "Bienvenido al escaneo de wifi. Se le avisará si se encuentra algún cambio.", duration=5, threaded = True)
     ip = encontrar_ip()
     partes = ip.split('.')
     ipI = ".".join(partes[:-1])
@@ -104,7 +107,4 @@ if __name__ == "__main__":
         ping(ipI)
         arp("SegundoResultado.txt", ipI)
         comprobacion()
-        sleep(5)
-        
-        
-    
+        sleep(30)
