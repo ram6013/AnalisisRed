@@ -1,0 +1,7 @@
+  192.168.1.1           60-8d-26-30-42-c7     din mico  
+  192.168.1.18          8a-db-cd-71-c1-b1     din mico  
+  192.168.1.36          2a-54-25-da-69-f2     din mico  
+  192.168.1.76          b0-73-9c-95-81-9c     din mico  
+  192.168.1.124         0a-3e-48-49-b7-74     din mico  
+  192.168.1.127         60-8d-26-95-ad-23     din mico  
+  192.168.1.255         ff-ff-ff-ff-ff-ff     est tico  
