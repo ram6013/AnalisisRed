@@ -4,7 +4,6 @@ from time import sleep
 from win10toast import ToastNotifier
 
 def encontrar_ip():
-
     salida = sub.run("ipconfig", shell=False, capture_output=True, text=True)
 
     with open("pruebaPrueba.txt", "w") as archivo:
@@ -50,8 +49,6 @@ def ping(ip):
     for i in range(1, 256):
         direccion = f"{ip}.{i}"
         sub.Popen(["ping", "-n", "1", direccion], stdout=sub.PIPE, stderr=sub.PIPE, text=True)
-        
-
 
     
 def arp(nombre, ipI):
@@ -84,16 +81,18 @@ def comprobacion():
     ip_eliminadas = [ip for ip in ips1 if ip not in ips2]
 
     if ip_añadidas:
-        for ip in ip_añadidas:
-            mensaje1 = f"Se ha conectado la siguiente direcciones IP: {ip}"
-            noti.show_toast("Warning", mensaje1, duration=2, threaded=True)
-            sleep(1)
+        mensaje1 = f"Se ha conectado la siguiente direcciones IP: {"\n".join(ip_añadidas)}"
+        noti.show_toast("Warning", mensaje1, duration=2, threaded=True)
+        sleep(1)
+            
 
     if ip_eliminadas:
-        for ip in ip_eliminadas:
-            mensaje2 = f"Se ha desconectado la siguiente direcciones IP: {ip}"
-            noti.show_toast("Warning", mensaje2, duration=2, threaded=True)
-            sleep(1)
+        mensaje2 = f"Se ha desconectado la siguiente direcciones IP: {"\n".join(ip_eliminadas)}"
+        noti.show_toast("Warning", mensaje2, duration=2, threaded=True)
+        sleep(1)
+        
+    if ip_añadidas or ip_eliminadas:
+             arp("PrimerResultado.txt", ipI)
     
 if __name__ == "__main__":
     noti = ToastNotifier()
