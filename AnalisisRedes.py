@@ -15,7 +15,6 @@ def encontrar_ip():
 
     seccion_wifi = None
 
-    # Buscar la sección que contiene información sobre Wi-Fi
     for idx, linea in enumerate(contenido):
         if "Wi-Fi" in linea:
             seccion_wifi = contenido[idx:]
@@ -51,6 +50,8 @@ def ping(ip):
     for i in range(1, 256):
         direccion = f"{ip}.{i}"
         sub.Popen(["ping", "-n", "1", direccion], stdout=sub.PIPE, stderr=sub.PIPE, text=True)
+        
+
 
     
 def arp(nombre, ipI):
@@ -68,32 +69,31 @@ def arp(nombre, ipI):
     # Escribir las líneas filtradas de nuevo en el archivo
     with open(nombre, "w") as archivo:
         archivo.writelines(lineas_filtradas)
+  
 
 def comprobacion():
-    # Leer el contenido de los archivos ARP previo y actual
     with open("PrimerResultado.txt", "r") as archivo1:
         contenido1 = archivo1.readlines()
     with open("SegundoResultado.txt", "r") as archivo2:
         contenido2 = archivo2.readlines()
     
-    # Extraer las direcciones IP de las listas de contenido
     ips1 = [linea.split()[0] for linea in contenido1]
     ips2 = [linea.split()[0] for linea in contenido2]
 
-    # Determinar quién se ha ido o quién se ha añadido
     ip_añadidas = [ip for ip in ips2 if ip not in ips1]
     ip_eliminadas = [ip for ip in ips1 if ip not in ips2]
 
-    # Mostrar los resultados
     if ip_añadidas:
         for ip in ip_añadidas:
             mensaje1 = f"Se ha conectado la siguiente direcciones IP: {ip}"
-            noti.show_toast("Warning", mensaje1, duration=5, threaded=True)
+            noti.show_toast("Warning", mensaje1, duration=2, threaded=True)
+            sleep(1)
 
     if ip_eliminadas:
         for ip in ip_eliminadas:
             mensaje2 = f"Se ha desconectado la siguiente direcciones IP: {ip}"
-            noti.show_toast("Warning", mensaje2, duration=5, threaded=True)
+            noti.show_toast("Warning", mensaje2, duration=2, threaded=True)
+            sleep(1)
     
 if __name__ == "__main__":
     noti = ToastNotifier()
