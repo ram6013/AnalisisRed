@@ -1,7 +1,21 @@
 import subprocess as sub
 import os
 from time import sleep
-from win10toast import ToastNotifier
+
+
+def mostrar_noti(mensaje, titulo):
+    script = f'''
+    Add-Type -AssemblyName System.Windows.Forms
+    $balmsg = New-Object System.Windows.Forms.NotifyIcon
+    $path = (Get-Process -id $pid).Path
+    $balmsg.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+    $balmsg.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::None
+    $balmsg.BalloonTipText = "{mensaje}"
+    $balmsg.BalloonTipTitle = "{titulo}"
+    $balmsg.Visible = $true
+    $balmsg.ShowBalloonTip(10000)
+    '''
+    sub.Popen(['powershell', '-Command', script])
 
 def encontrar_ip():
     salida = sub.run("ipconfig", shell=False, capture_output=True, text=True)
@@ -82,21 +96,20 @@ def comprobacion():
 
     if ip_añadidas:
         mensaje1 = f"Se ha conectado la siguiente direcciones IP: {"\n".join(ip_añadidas)}"
-        noti.show_toast("Warning", mensaje1, duration=2, threaded=True)
+        mostrar_noti(mensaje1, 'Aviso')
         sleep(1)
             
 
     if ip_eliminadas:
         mensaje2 = f"Se ha desconectado la siguiente direcciones IP: {"\n".join(ip_eliminadas)}"
-        noti.show_toast("Warning", mensaje2, duration=2, threaded=True)
+        mostrar_noti(mensaje2, 'Aviso')
         sleep(1)
         
     if ip_añadidas or ip_eliminadas:
              arp("PrimerResultado.txt", ipI)
     
 if __name__ == "__main__":
-    noti = ToastNotifier()
-    noti.show_toast("El programa esta en ejecución", "Bienvenido al escaneo de wifi. Se le avisará si se encuentra algún cambio.", duration=5, threaded = True)
+    mostrar_noti('Se le avisará si se conecta o desconecta alguien', 'Se ha iniciado con exito el escaner de red.')
     ip = encontrar_ip()
     partes = ip.split('.')
     ipI = ".".join(partes[:-1])
@@ -106,4 +119,6 @@ if __name__ == "__main__":
         ping(ipI)
         arp("SegundoResultado.txt", ipI)
         comprobacion()
-        sleep(30)
+        sleep(1)
+        
+        
