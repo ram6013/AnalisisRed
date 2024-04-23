@@ -2,6 +2,7 @@ import subprocess as sub
 import os
 from time import sleep
 import tkinter as tk
+from tkinter import scrolledtext
 import threading
 
 
@@ -27,11 +28,15 @@ def mostrar_noti(mensaje, titulo):
     sub.Popen(['powershell', '-Command', script], creationflags=sub.CREATE_NO_WINDOW)
 
 def actualizar_texto():
-    global mensaje2, mensaje1, mensaje_predeterminado
+    global mensaje2, mensaje1
     if mensaje1:
-        label1.config(text=mensaje1)
+        texto.insert(tk.END, mensaje1)
+        mensaje1 = None
+        sleep(1)   
     if mensaje2:
-        label2.config(text=mensaje2)
+        texto.insert(tk.END, mensaje2)
+        mensaje2 = None  
+        sleep(1) 
         
 def encontrar_ip():
     salida = sub.run("ipconfig", shell=False, capture_output=True, text=True, creationflags=sub.CREATE_NO_WINDOW)
@@ -112,26 +117,21 @@ def comprobacion():
     ip_eliminadas = [ip for ip in ips1 if ip not in ips2]
 
     if ip_añadidas:
-        mensaje1 = f"Se ha conectado la siguiente direcciones IP: {"\n".join(ip_añadidas)}"
+        mensaje1 = f"\nSe han conectado las siguientes direcciones IP:\n{"\n".join(ip_añadidas)}\n"
         mostrar_noti(mensaje1, 'Aviso')
         sleep(1)
+        
 
     if ip_eliminadas:
-        mensaje2 = f"Se ha desconectado la siguiente direcciones IP: {"\n".join(ip_eliminadas)}"
+        mensaje2 = f"\nSe han desconectado las siguientes direcciones IP:\n{"\n".join(ip_eliminadas)}\n"
         mostrar_noti(mensaje2, 'Aviso')
         sleep(1)
 
     if ip_añadidas or ip_eliminadas:
         arp("PrimerResultado.txt", ipI)
         
-    with open("Resultado.txt", "a") as f:
-        f.write("Ips ip_añadidas:\n")
-        for ip in ip_añadidas:
-            f.write(ip)
-    with open("Resultado.txt", "a") as f:
-        f.write("\nIps ip_eliminadas:\n")
-        for ip in ip_eliminadas:
-            f.write(ip)
+        
+
 
 def ejecutar_tareas_concurrentes():
     global exit
@@ -146,9 +146,9 @@ def ejecutar_tareas_concurrentes():
 
 if __name__ == "__main__":
     global mensaje1, mensaje2
-    mensaje1 = "Todo normal"
+    mensaje1 = ""
     mensaje2 = ""
-    mensaje_predeterminado = "Se ha ejecutado con éxito"
+    mensaje_predeterminado = "Se ha ejecutado con éxito\n"
     mostrar_noti('Se le avisará si se conecta o desconecta alguien', 'Se ha iniciado con éxito el escáner de red.')
     exit = False
     ip = encontrar_ip()
@@ -156,20 +156,19 @@ if __name__ == "__main__":
     ipI = ".".join(partes[:-1])
     ping(ipI)
     arp("PrimerResultado.txt", ipI)
+    t = threading.Thread(target=ejecutar_tareas_concurrentes)
+    t.start()
     root = tk.Tk()
     root.title("Análisis de Red")
     root.geometry("500x400")
     root.configure(background="gray21")
-    label1 = tk.Label(root, text=mensaje_predeterminado, foreground="white", background="grey21", font=18)
-    label2 = tk.Label(root, text=mensaje2, foreground="white", background="grey21", font=18)
-    label1.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-    root.grid_rowconfigure(0, weight=1)
-    root.grid_columnconfigure(0, weight=1)
-    boton_cerrar = tk.Button(root, text="Cerrar", command=lambda: cerrar_ventana(root), cursor="hand2", width=8, height=2)
-    boton_cerrar.grid(row=1, column=0, pady=10)
-
-    t = threading.Thread(target=ejecutar_tareas_concurrentes)
-    t.start()
+    label = tk.Label(root, text="Aqui estan los resultados:", background="grey21", font=18, foreground='white')
+    label.pack(pady=10)
+    texto = scrolledtext.ScrolledText(root, width = 40, height = 10, wrap = tk.WORD)
+    texto.insert(tk.END, mensaje_predeterminado)
+    texto.pack(pady=10)
+    boton = tk.Button(root, text="cerrar", command=lambda : cerrar_ventana(root), cursor='hand2', height= 2, width=15)
+    boton.pack(pady=50, padx=5)
     
     root.mainloop()
     exit = True 
