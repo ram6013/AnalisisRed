@@ -141,8 +141,15 @@ def ejecutar_tareas_concurrentes():
         comprobacion()
         actualizar_texto()
         sleep(30)
-
-
+def guardar():
+    contenido = texto.get("1.0", "end-1c")
+    if contenido != "":
+        with open("Resultado.txt", "w") as f:
+            f.write(contenido)
+        mostrar_noti("Se ha guardado correctamente en un txt.", "Aviso")
+    else: 
+        mostrar_noti("No se ha podido guardar correctamente.", "Aviso")
+        
 
 if __name__ == "__main__":
     global mensaje1, mensaje2
@@ -167,9 +174,12 @@ if __name__ == "__main__":
     texto = scrolledtext.ScrolledText(root, width = 40, height = 10, wrap = tk.WORD)
     texto.insert(tk.END, mensaje_predeterminado)
     texto.pack(pady=10)
-    boton = tk.Button(root, text="cerrar", command=lambda : cerrar_ventana(root), cursor='hand2', height= 2, width=15)
-    boton.pack(pady=50, padx=5)
-    
+    frame_botones = tk.Frame(root, background="grey21")
+    frame_botones.pack(padx=10, pady=10)
+    boton = tk.Button(frame_botones, text="cerrar", command=lambda : cerrar_ventana(root), cursor='hand2', height= 2, width=15)
+    boton.pack(pady=50, padx=5, side=tk.LEFT)
+    boton_guardar = tk.Button(frame_botones, text="guardar resultados", command=lambda : guardar(), cursor= "hand2", height=2, width=15)
+    boton_guardar.pack(pady=50, padx=5, side=tk.RIGHT)
     root.mainloop()
     exit = True 
     t.join()

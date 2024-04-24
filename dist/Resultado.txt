@@ -1,0 +1,4 @@
+Se ha ejecutado con éxito
+
+Se han desconectado las siguientes direcciones IP:
+192.168.1.41
