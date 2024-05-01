@@ -4,6 +4,7 @@ from time import sleep
 import tkinter as tk
 from tkinter import scrolledtext
 import threading
+import sys
 
 
 def cerrar_ventana(root):
@@ -39,56 +40,43 @@ def actualizar_texto():
         sleep(1) 
         
 def encontrar_ip():
-    salida = sub.run("ipconfig", shell=False, capture_output=True, text=True, creationflags=sub.CREATE_NO_WINDOW)
+    salida = sub.run("ipconfig | findstr IPv4", shell=True, capture_output=True, text=True, creationflags=sub.CREATE_NO_WINDOW)
 
     with open("pruebaPrueba.txt", "w") as archivo:
         archivo.write(salida.stdout)
 
-    with open("pruebaPrueba.txt", "r") as text:
-        contenido = text.readlines()
-
-    seccion_wifi = None
-
-    for idx, linea in enumerate(contenido):
-        if "Wi-Fi" in linea:
-            seccion_wifi = contenido[idx:]
-            break
-
-    if seccion_wifi:
-        with open("wifi.txt", "w") as archivo:
-            for lines in seccion_wifi:
-                archivo.write(lines)
-
-        with open("wifi.txt", "r") as archivo:
-            for lines in archivo:
-                if "IPv4" in lines:
-                    with open("IP.txt", "w") as ip:
-                        ip.write(lines)
-                    ip = open("IP.txt", "r").read()
-                    partes = ip.split(" ")
-                    parte_ip = partes[-1]
-                    with open("ip.txt", "w") as ip:
-                        ip.write(parte_ip)
-                    resultado = open("IP.txt", "r").read()
-    else:
-        print("No se encontró información sobre Wi-Fi.")
+    with open("pruebaPrueba.txt", "r") as archivo:
+        for lines in archivo:
+            if "IPv4" in lines:
+                with open("IP.txt", "w") as ip:
+                    ip.write(lines)
+                ip = open("IP.txt", "r").read()
+                partes = ip.split(" ")
+                parte_ip = partes[-1]
+                with open("ip.txt", "w") as ip:
+                    ip.write(parte_ip)
+                resultado = open("IP.txt", "r").read()
+            else:
+                mostrar_noti("No se encontró información sobre Wi-Fi.", "Aviso")
+                sys.exit()
 
     if resultado:
-        os.remove("wifi.txt")
         os.remove("pruebaPrueba.txt")
         return resultado
     else:
-        print("Error: No se encontró información sobre Wi-Fi")
+        mostrar_noti("No se encontró información sobre Wi-Fi, no se puede hacer el escaneo", "Aviso")
+        sys.exit()
 
 
 def ping(ip):
-    for i in range(1, 256):
+    for i in range(1, 255):
         direccion = f"{ip}.{i}"
         sub.Popen(["ping", "-n", "1", direccion], stdout=sub.DEVNULL, stderr=sub.DEVNULL,
                   creationflags=sub.CREATE_NO_WINDOW)
 
 
 def arp(nombre, ipI):
+    global creado
     salida = sub.run("arp -a", shell=False, capture_output=True, text=True, creationflags=sub.CREATE_NO_WINDOW)
     if salida.returncode != 0:
         print("Error al ejecutar el comando:")
@@ -101,6 +89,7 @@ def arp(nombre, ipI):
 
     with open(nombre, "w") as archivo:
         archivo.writelines(lineas_filtradas)
+    creado = True
 
 
 def comprobacion():
@@ -183,6 +172,7 @@ if __name__ == "__main__":
     root.mainloop()
     exit = True 
     t.join()
-    os.remove("IP.txt")
-    os.remove("PrimerResultado.txt")
-    os.remove("SegundoResultado.txt")
+    if creado == True:
+        os.remove("IP.txt")
+        os.remove("PrimerResultado.txt")
+        os.remove("SegundoResultado.txt")
